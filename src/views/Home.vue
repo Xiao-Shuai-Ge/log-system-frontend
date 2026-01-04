@@ -76,15 +76,34 @@
               <span class="text-gray-600 font-mono text-xs">{{ scope.row.timestamp }}</span>
             </template>
           </el-table-column>
-          <el-table-column prop="source" label="来源应用" width="150">
-            <template #default="scope">
-              <el-tag size="small" effect="plain">{{ scope.row.source }}</el-tag>
-            </template>
-          </el-table-column>
-          <el-table-column label="日志内容" min-width="300">
+          <el-table-column label="日志内容" min-width="400">
              <template #default="scope">
-                <div class="line-clamp-2 text-sm text-gray-700 font-mono cursor-pointer hover:text-blue-600" @click="viewDetail(scope.row)">
-                  {{ formatContent(scope.row.content) }}
+                <div class="flex flex-col gap-1 py-1" @click="viewDetail(scope.row)">
+                  <!-- Level & Main Content -->
+                  <div class="flex items-start gap-2">
+                    <el-tag 
+                      v-if="getLogLevel(scope.row.content)" 
+                      :type="getLevelType(getLogLevel(scope.row.content))" 
+                      size="small" 
+                      effect="dark"
+                      class="flex-none mt-0.5"
+                    >
+                      {{ getLogLevel(scope.row.content) }}
+                    </el-tag>
+                    <span class="text-sm text-gray-800 font-medium break-all">
+                      {{ getMainContent(scope.row.content) }}
+                    </span>
+                  </div>
+                  
+                  <!-- Other Fields -->
+                  <div class="flex flex-wrap gap-x-4 gap-y-1 pl-1 text-xs text-gray-500 font-mono">
+                    <template v-for="(value, key) in getOtherFields(scope.row.content)" :key="key">
+                      <div class="flex items-center gap-1">
+                        <span class="text-gray-400">{{ key }}:</span>
+                        <span class="text-gray-600 truncate max-w-[200px]" :title="String(value)">{{ value }}</span>
+                      </div>
+                    </template>
+                  </div>
                 </div>
              </template>
           </el-table-column>
@@ -172,10 +191,45 @@ const detailVisible = ref(false)
 const currentLog = ref<Log | null>(null)
 
 // Methods
-const formatContent = (content: any) => {
-  if (typeof content === 'string') return content
-  return JSON.stringify(content)
+const getLogLevel = (content: any): string => {
+  if (!content || typeof content !== 'object') return ''
+  // Try common level field names
+  return content.level || content.LEVEL || content.Level || content.severity || ''
 }
+
+const getLevelType = (level: string): 'success' | 'warning' | 'danger' | 'info' | 'primary' => {
+  const l = level.toLowerCase()
+  if (l.includes('error') || l.includes('fatal') || l.includes('crit')) return 'danger'
+  if (l.includes('warn')) return 'warning'
+  if (l.includes('info')) return 'primary' // Changed to primary for better visibility than info (gray)
+  if (l.includes('debug') || l.includes('trace')) return 'info'
+  if (l.includes('success')) return 'success'
+  return 'info'
+}
+
+const getMainContent = (content: any): string => {
+  if (!content) return ''
+  if (typeof content === 'string') return content
+  // Try common message field names
+  return content.content || content.message || content.msg || content.MESSAGE || content.MSG || JSON.stringify(content)
+}
+
+const getOtherFields = (content: any): Record<string, any> => {
+  if (!content || typeof content !== 'object') return {}
+  const result: Record<string, any> = {}
+  
+  // Fields to exclude from "Other Fields" list
+  const excludedKeys = ['level', 'LEVEL', 'Level', 'severity', 'content', 'message', 'msg', 'MESSAGE', 'MSG']
+  
+  Object.keys(content).forEach(key => {
+    if (!excludedKeys.includes(key)) {
+      result[key] = content[key]
+    }
+  })
+  
+  return result
+}
+
 
 const fetchApps = async () => {
   try {
