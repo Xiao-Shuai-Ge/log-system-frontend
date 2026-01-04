@@ -14,6 +14,12 @@ const routes: Array<RouteRecordRaw> = [
     meta: { requiresAuth: true }
   },
   {
+    path: '/doc',
+    name: 'ApiDoc',
+    component: () => import('../views/ApiDoc.vue'),
+    meta: { requiresAuth: true }
+  },
+  {
     path: '/login',
     name: 'Login',
     component: () => import('../views/Login.vue')
