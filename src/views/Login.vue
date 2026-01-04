@@ -18,7 +18,7 @@ const formData = reactive({
   confirmPassword: ''
 })
 
-const validatePass2 = (rule: any, value: any, callback: any) => {
+const validatePass2 = (_rule: any, value: any, callback: any) => {
   if (!isLogin.value && value !== formData.password) {
     callback(new Error("Two inputs don't match!"))
   } else {
@@ -41,7 +41,7 @@ const toggleMode = () => {
 
 const handleSubmit = async (formEl: FormInstance | undefined) => {
   if (!formEl) return
-  await formEl.validate(async (valid, fields) => {
+  await formEl.validate(async (valid, _fields) => {
     if (valid) {
       loading.value = true
       try {
