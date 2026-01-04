@@ -1,6 +1,6 @@
 <template>
   <div class="min-h-screen bg-gray-50">
-    <nav class="bg-white shadow-sm p-4 mb-4">
+    <nav v-if="showNav" class="bg-white shadow-sm p-4 mb-4">
       <div class="max-w-7xl mx-auto flex justify-between items-center">
         <div class="flex items-center space-x-2">
           <img src="/vite.svg" class="w-8 h-8" alt="Vite logo" />
@@ -12,14 +12,18 @@
       </div>
     </nav>
     
-    <main class="max-w-7xl mx-auto">
+    <main :class="{'max-w-7xl mx-auto': showNav}">
       <router-view />
     </main>
   </div>
 </template>
 
 <script setup lang="ts">
-// App logic here
+import { useRoute } from 'vue-router'
+import { computed } from 'vue'
+
+const route = useRoute()
+const showNav = computed(() => route.name !== 'Login')
 </script>
 
 <style>
