@@ -10,7 +10,7 @@
           </div>
           <div class="flex gap-6 text-sm text-gray-600">
             <router-link to="/" class="hover:text-blue-600 transition-colors" :class="{ 'text-blue-600 font-medium': route.name === 'Home' }">日志查询</router-link>
-            <a href="#" class="hover:text-blue-600 transition-colors" @click.prevent="ElMessage.info('功能开发中')">应用管理</a>
+            <router-link to="/apps" class="hover:text-blue-600 transition-colors" :class="{ 'text-blue-600 font-medium': route.name === 'AppList' }">应用管理</router-link>
             <a href="#" class="hover:text-blue-600 transition-colors" @click.prevent="ElMessage.info('API 文档请查看 swagger.json')">API 文档</a>
           </div>
         </div>
